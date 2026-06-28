@@ -72,7 +72,8 @@ struct SettingsView: View {
                             .listRowBackground(Color(red: 0x16/255, green: 0x16/255, blue: 0x2a/255))
                         }
                     }
-                    .scrollContentBackground(.hidden)
+                    .background(Color(red: 0x16/255, green: 0x16/255, blue: 0x2a/255))
+                    .scrollContentBackgroundHidden()
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -82,6 +83,18 @@ struct SettingsView: View {
                         .foregroundColor(Color(red: 0xe9/255, green: 0x45/255, blue: 0x60/255))
                 }
             }
+        }
+    }
+}
+
+@available(iOS, introduced: 13.0)
+extension View {
+    @ViewBuilder
+    func scrollContentBackgroundHidden() -> some View {
+        if #available(iOS 16.0, *) {
+            self.scrollContentBackground(.hidden)
+        } else {
+            self
         }
     }
 }
