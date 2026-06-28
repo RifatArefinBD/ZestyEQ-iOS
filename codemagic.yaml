@@ -58,16 +58,19 @@ workflows:
           echo "Unsigned IPA created at .build/${APP_NAME}.unsigned.ipa"
       - name: Publish to GitHub Release (if tagged)
         script: |
-          if [ -n "$CM_TAG" ]; then
+          if [ -z "$CM_TAG" ]; then
+            echo "No tag - skipping GitHub Release"
+          elif [ -z "$GITHUB_TOKEN" ]; then
+            echo "GITHUB_TOKEN not set - skipping GitHub Release"
+            echo "IPA is still available as a build artifact below."
+          else
             export PATH="/usr/local/share/npm/bin:$PATH"
             IPA_PATH=".build/${APP_NAME}.unsigned.ipa"
             gh release create "$CM_TAG" \
               --title "Zesty EQ $CM_TAG" \
-              --notes "Automated build for Zesty EQ iOS" \
+              --notes "Download the unsigned IPA below and install via TrollStore, Sideloadly, AltStore, or jailbreak." \
               "$IPA_PATH" \
               --repo "RifatArefinBD/ZestyEQ-iOS"
-          else
-            echo "No tag - skipping GitHub Release"
           fi
     artifacts:
       - .build/**/*.ipa
