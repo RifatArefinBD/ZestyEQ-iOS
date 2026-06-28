@@ -1,0 +1,66 @@
+workflows:
+  ios-build:
+    name: Zesty EQ Simple
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    integrations: []
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: "*"
+          include: true
+          source: true
+    environment:
+      vars:
+        APP_NAME: ZestyEQ
+        XCODE_PROJECT: ZestyEQ.xcodeproj
+        XCODE_SCHEME: ZestyEQ
+        BUNDLE_ID: com.zestyeq.ios
+      xcode: 16.0
+    scripts:
+      - name: Install XcodeGen
+        script: brew install xcodegen
+      - name: Generate Xcode project
+        script: xcodegen generate
+      - name: Build for simulator
+        script: |
+          xcodebuild \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath .build \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build
+      - name: Build for device (unsigned)
+        script: |
+          xcodebuild \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath .build \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build
+      - name: Create unsigned IPA
+        script: |
+          set -e
+          APP_PATH=$(find .build -path "*/Debug-iphoneos/*" -name "${APP_NAME}.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            APP_PATH=$(find .build -name "${APP_NAME}.app" -type d | head -1)
+          fi
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: Could not find ${APP_NAME}.app"; exit 1
+          fi
+          PAYLOAD_DIR=".build/Payload"
+          mkdir -p "$PAYLOAD_DIR"
+          cp -R "$APP_PATH" "$PAYLOAD_DIR/"
+          cd .build && zip -r "${APP_NAME}.unsigned.ipa" Payload/ && cd ..
+          echo "IPA created"
+    artifacts:
+      - .build/ZestyEQ.unsigned.ipa
+      - .build/Build/Products/Debug-iphoneos/ZestyEQ.app
+      - .build/Build/Products/Debug-iphonesimulator/ZestyEQ.app
+    publishing: {}
