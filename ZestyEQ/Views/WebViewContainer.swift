@@ -161,9 +161,6 @@ struct WebViewContainer: UIViewRepresentable {
             }.resume()
         }
 
-        // Handle file uploads
-        func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
-            completionHandler(nil)
-        }
+
     }
 }

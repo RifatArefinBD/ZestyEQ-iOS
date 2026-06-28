@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var manager: WebViewManager
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.presentationMode) var presentationMode
 
     @AppStorage("desktopSite") private var desktopSite = false
 
@@ -78,7 +78,7 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button("Done") { presentationMode.wrappedValue.dismiss() }
                         .foregroundColor(Color(red: 0xe9/255, green: 0x45/255, blue: 0x60/255))
                 }
             }
