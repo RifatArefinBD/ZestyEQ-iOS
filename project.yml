@@ -1,0 +1,35 @@
+name: ZestyEQ
+options:
+  bundleIdPrefix: com.zestyeq
+  deploymentTarget:
+    iOS: "14.0"
+  xcodeVersion: "14.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.7"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    INFOPLIST_FILE: ZestyEQ/Resources/Info.plist
+    PRODUCT_BUNDLE_IDENTIFIER: com.zestyeq.ios
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  ZestyEQ:
+    type: application
+    platform: iOS
+    sources:
+      - path: ZestyEQ
+        excludes:
+          - "Resources/Info.plist"
+    settings:
+      base:
+        INFOPLIST_FILE: ZestyEQ/Resources/Info.plist
+    info:
+      path: ZestyEQ/Resources/Info.plist
+    dependencies: []
+    preBuildScripts:
+      - name: "Copy JavaScript Resources"
+        script: |
+          rsync -av --exclude='.gitkeep' "${SRCROOT}/ZestyEQ/Resources/" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/"
+        basedOnDependencyAnalysis: false
