@@ -13,13 +13,11 @@ workflows:
           include: true
           source: true
     environment:
-      ios_signing:
-        provisioning_profile: ""
-        certificates: ""
       vars:
         APP_NAME: ZestyEQ
         XCODE_WORKSPACE: ZestyEQ.xcodeproj
         XCODE_SCHEME: ZestyEQ
+        BUNDLE_ID: com.zestyeq.ios
       xcode: 16.0
     scripts:
       - name: Install XcodeGen
@@ -51,6 +49,4 @@ workflows:
     artifacts:
       - .build/Build/Products/**/*.app
       - .build/Build/Products/**/*.dSYM.zip
-    publishing:
-      email: {}
-      slack: {}
+    publishing: {}
