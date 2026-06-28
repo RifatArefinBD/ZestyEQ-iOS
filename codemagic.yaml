@@ -67,6 +67,37 @@ workflows:
           zip -r "${APP_NAME}.unsigned.ipa" Payload/
           cd ..
           echo "Unsigned IPA created at .build/${APP_NAME}.unsigned.ipa"
+      - name: Launch test in simulator
+        script: |
+          set -e
+          SIM_APP_PATH=$(find .build -path "*/Debug-iphonesimulator/*" -name "${APP_NAME}.app" -type d | head -1)
+          if [ -z "$SIM_APP_PATH" ]; then
+            echo "No simulator build found - skipping launch test"
+            exit 0
+          fi
+          echo "Found simulator app at: $SIM_APP_PATH"
+          # Get available runtime
+          RUNTIME=$(xcrun simctl list runtimes | grep -o 'iOS [0-9.-]*' | tail -1)
+          echo "Using runtime: $RUNTIME"
+          # Create and boot simulator
+          DEVICE_NAME="ZestyEQ-Test-$(date +%s)"
+          DEVICE_UDID=$(xcrun simctl create "$DEVICE_NAME" "iPhone 15" "$RUNTIME")
+          echo "Created device: $DEVICE_UDID"
+          xcrun simctl boot "$DEVICE_UDID"
+          # Wait for boot
+          xcrun simctl wait "$DEVICE_UDID" booted
+          # Install and launch
+          xcrun simctl install "$DEVICE_UDID" "$SIM_APP_PATH"
+          xcrun simctl launch "$DEVICE_UDID" "$BUNDLE_ID"
+          # Wait for app to render
+          sleep 10
+          # Take screenshot
+          mkdir -p .build/screenshots
+          xcrun simctl screenshot "$DEVICE_UDID" ".build/screenshots/launch.png"
+          echo "Screenshot saved"
+          # Cleanup
+          xcrun simctl shutdown "$DEVICE_UDID"
+          xcrun simctl delete "$DEVICE_UDID"
       - name: Publish to GitHub Release (if tagged)
         script: |
           if [ -z "$CM_TAG" ]; then
@@ -85,6 +116,7 @@ workflows:
           fi
     artifacts:
       - .build/ZestyEQ.unsigned.ipa
+      - .build/screenshots/*.png
       - .build/Build/Products/Debug-iphoneos/ZestyEQ.app
       - .build/Build/Products/Debug-iphonesimulator/ZestyEQ.app
       - .build/Build/Products/**/*.dSYM.zip
