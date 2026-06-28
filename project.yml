@@ -3,7 +3,6 @@ options:
   bundleIdPrefix: com.zestyeq
   deploymentTarget:
     iOS: "14.0"
-  xcodeVersion: "14.0"
 
 settings:
   base:
@@ -13,6 +12,9 @@ settings:
     PRODUCT_BUNDLE_IDENTIFIER: com.zestyeq.ios
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
+    ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+    COPY_PHASE_STRIP: NO
+    GENERATE_INFOPLIST_FILE: NO
 
 targets:
   ZestyEQ:
@@ -25,6 +27,8 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: ZestyEQ/Resources/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.zestyeq.ios
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
     info:
       path: ZestyEQ/Resources/Info.plist
     dependencies: []

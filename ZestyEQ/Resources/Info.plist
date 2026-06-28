@@ -26,11 +26,8 @@
     <dict>
         <key>UIApplicationSupportsMultipleScenes</key>
         <false/>
-    </dict>
-    <key>UILaunchScreen</key>
-    <dict>
-        <key>UIColorName</key>
-        <string>systemBackgroundColor</string>
+        <key>UISceneConfigurations</key>
+        <dict/>
     </dict>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
@@ -58,7 +55,7 @@
             <string>com.zestyeq.discord</string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>https</string>
+                <string>zestyeq</string>
             </array>
         </dict>
     </array>
