@@ -1,0 +1,56 @@
+workflows:
+  ios-build:
+    name: Zesty EQ iOS
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    integrations: []
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: "*"
+          include: true
+          source: true
+    environment:
+      ios_signing:
+        provisioning_profile: ""
+        certificates: ""
+      vars:
+        APP_NAME: ZestyEQ
+        XCODE_WORKSPACE: ZestyEQ.xcodeproj
+        XCODE_SCHEME: ZestyEQ
+      xcode: 16.0
+    scripts:
+      - name: Install XcodeGen
+        script: |
+          brew install xcodegen
+      - name: Generate Xcode project
+        script: |
+          xcodegen generate
+      - name: Build for simulator
+        script: |
+          xcodebuild \
+            -project "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath .build \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build
+      - name: Build for device (unsigned)
+        script: |
+          xcodebuild \
+            -project "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath .build \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build
+    artifacts:
+      - .build/Build/Products/**/*.app
+      - .build/Build/Products/**/*.dSYM.zip
+    publishing:
+      email: {}
+      slack: {}
