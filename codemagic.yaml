@@ -46,7 +46,31 @@ workflows:
             -derivedDataPath .build \
             CODE_SIGNING_ALLOWED=NO \
             clean build
+      - name: Create unsigned IPA
+        script: |
+          APP_PATH=$(find .build -name "${APP_NAME}.app" -type d | head -1)
+          PAYLOAD_DIR=".build/Payload"
+          mkdir -p "$PAYLOAD_DIR"
+          cp -R "$APP_PATH" "$PAYLOAD_DIR/"
+          cd .build
+          zip -r "${APP_NAME}.unsigned.ipa" Payload/
+          cd ..
+          echo "Unsigned IPA created at .build/${APP_NAME}.unsigned.ipa"
+      - name: Publish to GitHub Release (if tagged)
+        script: |
+          if [ -n "$CM_TAG" ]; then
+            export PATH="/usr/local/share/npm/bin:$PATH"
+            IPA_PATH=".build/${APP_NAME}.unsigned.ipa"
+            gh release create "$CM_TAG" \
+              --title "Zesty EQ $CM_TAG" \
+              --notes "Automated build for Zesty EQ iOS" \
+              "$IPA_PATH" \
+              --repo "RifatArefinBD/ZestyEQ-iOS"
+          else
+            echo "No tag - skipping GitHub Release"
+          fi
     artifacts:
+      - .build/**/*.ipa
       - .build/Build/Products/**/*.app
       - .build/Build/Products/**/*.dSYM.zip
     publishing: {}
